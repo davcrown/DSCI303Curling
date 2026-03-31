@@ -210,3 +210,22 @@ model.fit(X_train, y_train)
 # Evaluate
 predictions = model.predict(X_test)
 print(f"R^2 Score: {r2_score(y_test, predictions)}")
+
+
+#### KNN Classification ####
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.metrics import mean_absolute_error, r2_score
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+knn = KNeighborsRegressor(n_neighbors=4)
+knn.fit(X_train_scaled, y_train)
+
+#evaluate
+y_pred = knn.predict(X_test_scaled)
+
+print(f"KNN R^2 Score: {r2_score(y_test, y_pred):.4f}")
+print(f"Mean Absolute Error: {mean_absolute_error(y_test, y_pred):.4f}")
