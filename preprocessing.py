@@ -210,3 +210,12 @@ model.fit(X_train, y_train)
 # Evaluate
 predictions = model.predict(X_test)
 print(f"R^2 Score: {r2_score(y_test, predictions)}")
+
+
+linreg = LinearRegression()
+linreg.fit(X_train, y_train)
+y_pred = linreg.predict(X_test)
+pred_mean = np.full(y_test.shape, y_train.mean())
+print('MSE train: %.3f, test: %.3f' % (
+        mean_squared_error(y_train, linreg.predict(X_train)),
+        mean_squared_error(y_test, pred_mean)))
