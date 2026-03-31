@@ -185,6 +185,6 @@ scatter = sns.scatterplot(
     data=curl_tsne,
     alpha=0.5
 )
-plt.title('t-SNE visualization of Housing Data colored by Points')
+plt.title('t-SNE visualization of Curling Data colored by Points')
 plt.colorbar(scatter.get_children()[0], label='Points')
 plt.show()
