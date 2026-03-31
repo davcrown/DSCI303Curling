@@ -188,3 +188,25 @@ scatter = sns.scatterplot(
 plt.title('t-SNE visualization of Curling Data colored by Points')
 plt.colorbar(scatter.get_children()[0], label='Points')
 plt.show()
+
+
+#### linear regression ####
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Define X (features) and y (target)
+# Drop the target and any non-numeric columns that weren't encoded
+X = distances_encoded.drop(columns=['OverallAvgStoneDistance', 'Result']) 
+y = distances_encoded['OverallAvgStoneDistance']
+
+# Split the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Fit the model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Evaluate
+predictions = model.predict(X_test)
+print(f"R^2 Score: {r2_score(y_test, predictions)}")
