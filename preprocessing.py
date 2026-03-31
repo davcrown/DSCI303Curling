@@ -212,10 +212,20 @@ predictions = model.predict(X_test)
 print(f"R^2 Score: {r2_score(y_test, predictions)}")
 
 
-linreg = LinearRegression()
-linreg.fit(X_train, y_train)
-y_pred = linreg.predict(X_test)
-pred_mean = np.full(y_test.shape, y_train.mean())
-print('MSE train: %.3f, test: %.3f' % (
-        mean_squared_error(y_train, linreg.predict(X_train)),
-        mean_squared_error(y_test, pred_mean)))
+#### KNN Classification ####
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.metrics import mean_absolute_error, r2_score
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+knn = KNeighborsRegressor(n_neighbors=4)
+knn.fit(X_train_scaled, y_train)
+
+#evaluate
+y_pred = knn.predict(X_test_scaled)
+
+print(f"KNN R^2 Score: {r2_score(y_test, y_pred):.4f}")
+print(f"Mean Absolute Error: {mean_absolute_error(y_test, y_pred):.4f}")
