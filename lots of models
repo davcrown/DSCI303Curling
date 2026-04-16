@@ -1,0 +1,356 @@
+############ PREPROCESSING #############
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn.manifold import TSNE
+
+#competition = pd.read_csv("Competition.csv")
+#competitors = pd.read_csv("Competitors.csv")
+ends = pd.read_csv("Ends.csv")
+#games = pd.read_csv("Games.csv")
+stones = pd.read_csv("Stones.csv")
+#teams = pd.read_csv("Teams.csv")
+# datasets
+
+#competition.info() #full
+#competitors.info() #full
+#ends.info() #powerplay
+#games.info() #full
+#stones.info() #some stone coords missing, potentially might just remove
+#teams.info() #full
+#should merge ends info
+
+#stones.hist(figsize=(16, 20), bins=50, xlabelsize=8, ylabelsize=8)
+stones.describe() # Changed indexing to use .iloc
+# -1 must be missing val for task and handle and points?
+# 4095 indicates stone is taken out of play
+results = pd.merge(stones, ends, on=['CompetitionID', 'SessionID', 'GameID', 'EndID', 'TeamID'], suffixes=('_stones', '_ends'), how="left")
+results.head(15)
+
+results["PowerPlay"] = results["PowerPlay"].fillna(0)
+#results.hist(figsize=(16, 20), bins=50, xlabelsize=8, ylabelsize=8)
+
+shot_info = results.iloc[:, 7:]
+shot_info.describe()
+
+shot_info['Task'] = shot_info['Task'].transform(str)
+shot_info['Handle'] = shot_info['Handle'].transform(str)
+
+
+shot_info['TimeOut'] = shot_info['TimeOut'].fillna(0)
+shot_info['PowerPlay'] = shot_info['PowerPlay'].replace([0,1,2],['None','Left','Right'])
+#shot_info.info()
+
+
+shot_info_num = shot_info.select_dtypes(include = 'number')
+
+sns.heatmap(shot_info_num.corr(), cmap='coolwarm')
+plt.show()
+golden_features = shot_info_num.corr()['Result'].sort_values(ascending=False)[1:6].index.tolist()
+golden_features
+
+def distance(x1, y1, x2, y2):
+    return np.sqrt((x1-x2)**2 + (y1-y2)**2)
+
+distances = pd.DataFrame()
+all_distances = [] # Initialize an empty list to store distances
+
+for stone in range(1,13):
+    # Create column names for the current stone
+    stone_x_col = 'stone_'+str(stone)+'_x'
+    stone_y_col = 'stone_'+str(stone)+'_y'
+    distance_col_name = 'stone_'+str(stone)+'_distance'
+
+    current_stone_distances = []
+
+    for idx in range(1, len(shot_info)):
+        if shot_info.loc[idx, stone_x_col] != 4095 and shot_info.loc[idx, stone_y_col] != 4095:
+            dist = distance(
+                shot_info.loc[idx, stone_x_col],
+                shot_info.loc[idx, stone_y_col],
+                shot_info.loc[idx-1, stone_x_col],
+                shot_info.loc[idx-1, stone_y_col]
+            )
+            current_stone_distances.append(dist)
+        else:
+            current_stone_distances.append(np.nan) # Append NaN if stone is out of play
+
+    current_stone_distances.insert(0, np.nan) # Or 0, depending on desired behavior for the first shot
+
+    distances[distance_col_name] = current_stone_distances
+
+    # Calculate the average distance for each stone
+average_distances = distances.mean()
+
+# Plot the average distances
+plt.figure(figsize=(12, 6))
+sns.barplot(x=average_distances.index, y=average_distances.values, palette='viridis')
+plt.xlabel('Stone Number')
+plt.ylabel('Average Distance')
+plt.title('Average Distance Moved by Each Stone per Shot')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+#print(distances.tail())
+print(distances.shape)
+
+distances['Task'] = shot_info['Task']
+task_mapping = {
+    "0": "Draw",
+    "1": "Front",
+    "2": "Guard",
+    "3": "Raise / Tap-back",
+    "4": "Wick / Soft Peeling",
+    "5": "Freeze",
+    "6": "Take-out",
+    "7": "Hit and Roll",
+    "8": "Clearing",
+    "9": "Double Take-out",
+    "10": "Promotion Take-out",
+    "11": "through",
+    "13": "no statistics"
+}
+
+distances['Task'] = distances['Task'].map(task_mapping)
+print(distances["Task"].head())
+distances['Handle'] = shot_info['Handle']
+distances['Points'] = shot_info['Points']
+distances['TimeOut'] = shot_info['TimeOut']
+distances['PowerPlay'] = shot_info['PowerPlay']
+distances['Result'] = shot_info['Result']
+
+# Identify all columns that represent stone distances
+stone_distance_cols = [col for col in distances.columns if 'stone_' in col and '_distance' in col]
+
+
+distances['OverallAvgStoneDistance'] = distances[stone_distance_cols].mean(axis=1)
+
+avgbytask = distances.groupby('Task')['OverallAvgStoneDistance'].mean().reset_index()
+
+plt.figure(figsize=(12, 6))
+sns.barplot(x=avgbytask['Task'], y=avgbytask['OverallAvgStoneDistance'], palette='viridis')
+plt.xlabel('Task')
+plt.ylabel('Average Distance')
+plt.title('Average Stones Distance Moved by Each Task')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Inspect the data types and missing values in the 'distances' DataFrame
+print(distances.info())
+#not sure if median is best choice but it is a common method for handling missing values in numerical data
+for col in stone_distance_cols:
+    distances[col] = distances[col].fillna(distances[col].median())
+distances['OverallAvgStoneDistance'] = distances['OverallAvgStoneDistance'].fillna(distances['OverallAvgStoneDistance'].median())
+
+# Identify categorical columns for one-hot encoding
+categorical_cols = ['Task', 'Handle', 'PowerPlay']
+
+# Perform one-hot encoding
+distances_encoded = pd.get_dummies(distances, columns=categorical_cols, dummy_na=False)
+
+#print("\nDataFrame after encoding categorical features:")
+#print(distances_encoded.head())
+print(distances_encoded.shape)
+
+distances_num = distances.select_dtypes(include = 'number')
+
+sns.heatmap(distances_num.corr(), cmap='coolwarm')
+plt.show()
+
+
+########### k-MEANS CLUSTERING FOR DISTANCES ############
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+cluster_df = distances_encoded.drop(columns=['Result', 'Points'], errors='ignore')
+
+#standardize
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(cluster_df)
+
+#elbow plot to pick number of clusters (doesn't work very well)
+inertias = []
+K_range = range(2, 26)
+
+for k in K_range:
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+    kmeans.fit(X_scaled)
+    inertias.append(kmeans.inertia_)
+
+plt.figure(figsize=(8, 5))
+plt.plot(list(K_range), inertias, marker='o')
+plt.xlabel("Number of clusters (k)")
+plt.ylabel("Inertia")
+plt.title("Elbow Plot for K-means Clustering")
+plt.show()
+
+#fit k means
+k = 4
+
+kmeans_final = KMeans(n_clusters=k, random_state=42, n_init=10)
+clusters = kmeans_final.fit_predict(X_scaled)
+distances_clustered = distances.copy()
+distances_clustered['Cluster'] = clusters
+
+#pca visualization
+pca = PCA(n_components=2, random_state=42)
+X_pca = pca.fit_transform(X_scaled)
+
+pca_df = pd.DataFrame(X_pca, columns=['PC1', 'PC2'])
+pca_df['Cluster'] = clusters
+
+plt.figure(figsize=(10, 6))
+for c in sorted(pca_df['Cluster'].unique()):
+    subset = pca_df[pca_df['Cluster'] == c]
+    plt.scatter(subset['PC1'], subset['PC2'], alpha=0.6, label=f'Cluster {c}')
+
+plt.xlabel("Principal Component 1")
+plt.ylabel("Principal Component 2")
+plt.title("K-means Clusters Visualized with PCA")
+plt.legend()
+plt.show()
+#colors for interpretation
+if 'Points' in distances.columns:
+    pca_df['Points'] = distances['Points'].reset_index(drop=True)
+
+    plt.figure(figsize=(10, 6))
+    scatter = plt.scatter(
+        pca_df['PC1'],
+        pca_df['PC2'],
+        c=pca_df['Points'],
+        alpha=0.6
+    )
+    plt.xlabel("Principal Component 1")
+    plt.ylabel("Principal Component 2")
+    plt.title("PCA View of Shots Colored by Points")
+    plt.colorbar(scatter, label='Points')
+    plt.show()
+
+#summary
+numeric_cols = distances_clustered.select_dtypes(include=np.number).columns.tolist()
+cluster_summary = distances_clustered.groupby('Cluster')[numeric_cols].mean()
+print("\nCluster mean summary:")
+print(cluster_summary)
+
+#most common aspects (task, handle, power play)
+if 'Task' in distances_clustered.columns:
+    task_summary = distances_clustered.groupby('Cluster')['Task'].agg(
+        lambda x: x.value_counts().index[0] if len(x.value_counts()) > 0 else np.nan
+    )
+    print("\nMost common Task in each cluster:")
+    print(task_summary)
+
+if 'Handle' in distances_clustered.columns:
+    handle_summary = distances_clustered.groupby('Cluster')['Handle'].agg(
+        lambda x: x.value_counts().index[0] if len(x.value_counts()) > 0 else np.nan
+    )
+    print("\nMost common Handle in each cluster:")
+    print(handle_summary)
+
+if 'PowerPlay' in distances_clustered.columns:
+    powerplay_summary = distances_clustered.groupby('Cluster')['PowerPlay'].agg(
+        lambda x: x.value_counts().index[0] if len(x.value_counts()) > 0 else np.nan
+    )
+    print("\nMost common PowerPlay in each cluster:")
+    print(powerplay_summary)
+
+print("\nNumber of shots in each cluster:")
+print(distances_clustered['Cluster'].value_counts().sort_index())
+
+
+######### kNN FOR DISTANCES ###########
+knn = KNeighborsRegressor(n_neighbors=5)
+knn.fit(X_train_scaled, y_train)
+knn_pred = knn.predict(X_test_scaled)
+
+print("KNN Results:")
+print("R^2:", r2_score(y_test, knn_pred))
+print("RMSE:", np.sqrt(mean_squared_error(y_test, knn_pred)))
+print("MAE:", mean_absolute_error(y_test, knn_pred))
+
+
+######## K MEANS CLUSTERING FOR CLASSIFYING POINTS 0-4 #############
+kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
+clusters = kmeans.fit_predict(X_scaled_full)
+
+# PCA visualization
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X_scaled_full)
+
+plt.figure(figsize=(10,6))
+for c in np.unique(clusters):
+    plt.scatter(
+        X_pca[clusters == c, 0],
+        X_pca[clusters == c, 1],
+        label=f'Cluster {c}',
+        alpha=0.6
+    )
+plt.legend()
+plt.title("K-Means Clusters (PCA Projection)")
+plt.show()
+
+######## LOGISTIC REGRESSION FOR CLASSIFYING POINTS 0-4 ##########
+logit = LogisticRegression(max_iter=1000)
+logit.fit(X_train_scaled, y_train)
+
+logit_pred = logit.predict(X_test_scaled)
+
+print("Accuracy:", accuracy_score(y_test, logit_pred))
+print(classification_report(y_test, logit_pred))
+
+######### KNN FOR CLASSIFYING POINTS 0-4 #########
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train_scaled, y_train)
+
+knn_pred = knn.predict(X_test_scaled)
+
+print("Accuracy:", accuracy_score(y_test, knn_pred))
+print(classification_report(y_test, knn_pred))
+
+########## MLP NEURAL NETWORK FOR CLASSIFYING POINTS 0-4 #########
+y_train_nn = y_train.astype(int)
+y_test_nn = y_test.astype(int)
+
+mlp = keras.Sequential([
+    layers.Dense(64, activation='relu', input_shape=(X_train_scaled.shape[1],)),
+    layers.Dense(32, activation='relu'),
+    layers.Dense(5, activation='softmax')  # 5 classes: 0–4
+])
+
+mlp.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+history = mlp.fit(
+    X_train_scaled, y_train_nn,
+    validation_split=0.2,
+    epochs=50,
+    batch_size=32,
+    verbose=1
+)
+
+mlp_pred_probs = mlp.predict(X_test_scaled)
+mlp_pred = np.argmax(mlp_pred_probs, axis=1)
+
+print("Accuracy:", accuracy_score(y_test_nn, mlp_pred))
+print(classification_report(y_test_nn, mlp_pred))
+
+###### MODEL COMPARISONS ######
+results = pd.DataFrame({
+    'Model': ['Logistic', 'KNN', 'MLP'],
+    'Accuracy': [
+        accuracy_score(y_test, logit_pred),
+        accuracy_score(y_test, knn_pred),
+        accuracy_score(y_test_nn, mlp_pred)
+    ]
+})
+
+print("\nModel Comparison: "
+print(results.sort_values(by='Accuracy', ascending=False))
