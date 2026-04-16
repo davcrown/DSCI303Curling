@@ -299,6 +299,54 @@ plt.legend()
 plt.title("K-Means Clusters (PCA Projection)")
 plt.show()
 
+## Ridge Regression with CV
+from sklearn.linear_model import RidgeCV
+
+lf = RidgeCV(alphas=[1e-3, 1e-2, 1e-1, 0.5, 1]).fit(X_train, y_train)
+clf.score(X_train, y_train)
+clf.predict(X_test)
+print("R-square",clf.score(X_test, y_test))
+print("coef:",clf.coef_)
+
+#best alpha
+print("best alpha:",lf.alpha_)
+
+
+## LOGISTIC REGRESSION CLASSIFYING SHOTS SUCCESSFUL/UNSUCCESSFUL
+
+# transform ordinal y into binary 0 and 1 for logistic regression
+y_log = y.copy()
+y_log[y_log < 3] = 0
+y_log[y_log >= 3] = 1
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y_log, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+logreg = LogisticRegression()
+logreg.fit(X_train_scaled, y_train)
+
+y_pred = logreg.predict(X_test_scaled)
+print(f"Logistic Regression Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+print(classification_report(y_test, y_pred))
+
+## Random Forest Classification for Successful/Not Successful
+from sklearn.ensemble import RandomForestClassifier
+
+for i in [10, 50, 100, 200]:
+  forest = RandomForestClassifier(n_estimators=i, random_state=0)
+  forest.fit(X_train, y_train)
+  print("Num_Estimators:", i)
+  print("Accuracy on training set: {:.3f}".format(forest.score(X_train, y_train)))
+  print("Accuracy on test set: {:.3f}".format(forest.score(X_test, y_test)))
+
+
 ######## LOGISTIC REGRESSION FOR CLASSIFYING POINTS 0-4 ##########
 logit = LogisticRegression(max_iter=1000)
 logit.fit(X_train_scaled, y_train)
