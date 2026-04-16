@@ -139,6 +139,11 @@ plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
 
+#Remove undefined points values
+distances = distances[distances['Points']!=-1]
+distances = distances[distances['Points']!=9]
+distances = distances[distances['Points']!=10]
+
 # Inspect the data types and missing values in the 'distances' DataFrame
 print(distances.info())
 #not sure if median is best choice but it is a common method for handling missing values in numerical data
