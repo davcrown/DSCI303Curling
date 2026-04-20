@@ -143,6 +143,7 @@ plt.show()
 distances = distances[distances['Points']!=-1]
 distances = distances[distances['Points']!=9]
 distances = distances[distances['Points']!=10]
+distances['StonesInPlay'] = np.sum(np.isnan(distances), 1)
 
 # Inspect the data types and missing values in the 'distances' DataFrame
 print(distances.info())
@@ -309,7 +310,7 @@ print("R-square",clf.score(X_test, y_test))
 print("coef:",clf.coef_)
 
 #best alpha
-print("best alpha:",lf.alpha_)
+print("best alpha:",clf.alpha_)
 
 
 ## LOGISTIC REGRESSION CLASSIFYING SHOTS SUCCESSFUL/UNSUCCESSFUL
