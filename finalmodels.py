@@ -303,14 +303,40 @@ X_test_scaled = scaler.transform(X_test)
 X_scaled_full = scaler.fit_transform(X)
 
 
+
 ########## LOGISTIC REGRESSION - baseline model ##########
-# ** insert final logistic regression code here **
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+logreg = LogisticRegression(class_weight="balanced")
+logreg.fit(X_train_scaled, y_train)
+
+y_pred = logreg.predict(X_test_scaled)
+print(f"Logistic Regression Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+print(classification_report(y_test, y_pred))
 
 
 
-########## RANDOM FOREST - ensemble model ##########
-# ** insert final random forest code here **
+# Oversampling to  balance the Points
+from imblearn.over_sampling import RandomOverSampler
 
+ros = RandomOverSampler(random_state=0)
+X_resampled, y_resampled = ros.fit_resample(distances_encoded.drop(columns=['Points', 'Result']), y)
+
+np.unique(y_resampled, return_counts=True)# Oversampling to  balance the Points
+from imblearn.over_sampling import RandomOverSampler
+
+ros = RandomOverSampler(random_state=0)
+X_resampled, y_resampled = ros.fit_resample(distances_encoded.drop(columns=['Points', 'Result']), y)
+
+np.unique(y_resampled, return_counts=True)
 
 ########## MLP NEURAL NETWORK - neural network model ##########
 from sklearn.utils import class_weight
@@ -393,11 +419,6 @@ def plot_history(history):
 plot_history(history)
 
 
-########## GEMINI - LLM ##########
-# not sure if there was any code here
-# if not, maybe just quickly summarize prompts used
-
-
 ########## TSNE VISUALIZATION - other model ##########
 #pretty sure this is still the old tsne code before updating it, so just replace if needed
 df_std = StandardScaler().fit_transform(distances_encoded)
@@ -437,3 +458,111 @@ results = pd.DataFrame({
 print("\nMODEL COMPARISON")
 print(results.sort_values(by='Accuracy', ascending=False))
 
+
+## Random Forest Tuning
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, roc_auc_score
+
+
+# Scale the features (important for some models, good practice for consistency)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Define the parameter grid to search
+param_grid = {
+    'n_estimators': [50, 100, 200], # Number of trees
+    'max_features': ['sqrt', 'log2'],
+    'max_depth': [10, 20, 30, None], # Maximum depth of the tree
+    'min_samples_split': [2, 5, 10], # Minimum number of samples required to split an internal node
+    'min_samples_leaf': [1, 2, 4], # Minimum number of samples required to be at a leaf node
+    'class_weight': ['balanced'] # Keep class weight as it was useful
+}
+
+# Initialize the Random Forest Classifier
+rf_classifier = RandomForestClassifier(random_state=42)
+
+# Initialize GridSearchCV
+grid_search = GridSearchCV(estimator=rf_classifier,
+                         param_grid=param_grid,
+                         cv=3, # Using 3-fold cross-validation for grid search
+                         n_jobs=-1, # Use all available cores
+                         verbose=2, # Verbosity level
+                         scoring='f1_weighted') # Or 'f1_weighted', 'roc_auc' for imbalanced data
+
+# Fit GridSearchCV to the training data
+grid_search.fit(X_train_scaled, y_train)
+
+print("Best parameters found: ", grid_search.best_params_)
+print("Best cross-validation accuracy: ", grid_search.best_score_)
+
+# Evaluate the best model on the test set
+best_rf_model = grid_search.best_estimator_
+test_accuracy = best_rf_model.score(X_test_scaled, y_test)
+print(f"Test set accuracy with best parameters: {test_accuracy:.4f}")
+
+from sklearn.model_selection import KFold, cross_val_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from scipy.stats import ttest_rel
+from sklearn.preprocessing import StandardScaler
+
+# Import KerasClassifier for wrapping Keras models
+from scikeras.wrappers import KerasClassifier
+from keras.models import Sequential
+from keras.layers import Dense, BatchNormalization, Dropout
+from keras.optimizers import Adam
+from keras.callbacks import EarlyStopping
+
+scaler = StandardScaler()
+X_train_scaled_for_clf = scaler.fit_transform(X_train)
+
+logreg_model = LogisticRegression(max_iter=1000, solver='liblinear')
+
+# Get the best Random Forest Classifier model from GridSearchCV
+# Assuming best_rf_model is available in the kernel from cell 5bf4a735
+
+# Define the MLP model building function for KerasClassifier
+def build_mlp_model():
+    opt = Adam(learning_rate=0.001)
+    mlp = Sequential([
+        Dense(128, activation='leaky_relu', input_shape=(X_train_scaled_for_clf.shape[1],)),
+        BatchNormalization(),
+        Dropout(0.3),
+        Dense(64, activation='leaky_relu'),
+        BatchNormalization(),
+        Dropout(0.2),
+        Dense(5, activation='softmax') # 5 classes for 'Points' (0,1,2,3,4)
+    ])
+    mlp.compile(optimizer=opt, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    return mlp
+
+# Create KerasClassifier instance for the MLP model
+mlp_model_wrapped = KerasClassifier(model=build_mlp_model, epochs=100, batch_size=64, verbose=0,
+                                    callbacks=[EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)])
+
+# Define the models for comparison
+classification_models = {
+    'Logistic Regression': logreg_model,
+    'Tuned Random Forest Classifier': best_rf_model,
+    'MLP Neural Network': mlp_model_wrapped
+}
+
+# Perform 5-fold cross-validation for each classification model
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+clf_results_scores = {}
+
+print("Cross-validation Accuracy scores for Classification Models:")
+for name, model in classification_models.items():
+    scores = cross_val_score(model, X_train_scaled_for_clf, y_train, cv=kf, scoring='accuracy')
+    clf_results_scores[name] = scores
+    print(f"{name}: Mean Accuracy = {scores.mean():.4f} (+/- {scores.std():.4f})")
+
+# Prepare data for Tukey's HSD test
+# Combine all scores into a single array and create group labels
+all_scores = np.concatenate(list(clf_results_scores.values()))
+model_names = []
+for name, scores in clf_results_scores.items():
+    model_names.extend([name] * len(scores))
