@@ -1,0 +1,472 @@
+{
+  "n_folds": 5,
+  "seeds": 3,
+  "per_run": [
+    {
+      "fold": 0,
+      "variant": "GNN",
+      "seed": 0,
+      "epochs": 29,
+      "val_qwk": 0.8029656371631714,
+      "test_qwk": 0.7816396005855915,
+      "sec": 87.0
+    },
+    {
+      "fold": 0,
+      "variant": "GNN",
+      "seed": 1,
+      "epochs": 50,
+      "val_qwk": 0.8005483796745918,
+      "test_qwk": 0.7907993123976836,
+      "sec": 147.7
+    },
+    {
+      "fold": 0,
+      "variant": "GNN",
+      "seed": 2,
+      "epochs": 41,
+      "val_qwk": 0.8107612465627141,
+      "test_qwk": 0.7821886530137641,
+      "sec": 121.6
+    },
+    {
+      "fold": 0,
+      "variant": "No-edge ablation",
+      "seed": 0,
+      "epochs": 29,
+      "val_qwk": 0.7902843234584855,
+      "test_qwk": 0.7529930509142075,
+      "sec": 59.5
+    },
+    {
+      "fold": 0,
+      "variant": "No-edge ablation",
+      "seed": 1,
+      "epochs": 33,
+      "val_qwk": 0.7850795102610146,
+      "test_qwk": 0.7590228415606651,
+      "sec": 69.3
+    },
+    {
+      "fold": 0,
+      "variant": "No-edge ablation",
+      "seed": 2,
+      "epochs": 59,
+      "val_qwk": 0.791769981587342,
+      "test_qwk": 0.7654705101718643,
+      "sec": 121.4
+    },
+    {
+      "fold": 1,
+      "variant": "GNN",
+      "seed": 0,
+      "epochs": 48,
+      "val_qwk": 0.8291520274281172,
+      "test_qwk": 0.7791846681746175,
+      "sec": 110.9
+    },
+    {
+      "fold": 1,
+      "variant": "GNN",
+      "seed": 1,
+      "epochs": 59,
+      "val_qwk": 0.8337326116920935,
+      "test_qwk": 0.7821434426001295,
+      "sec": 110.7
+    },
+    {
+      "fold": 1,
+      "variant": "GNN",
+      "seed": 2,
+      "epochs": 49,
+      "val_qwk": 0.8239222485508326,
+      "test_qwk": 0.7891543974293885,
+      "sec": 94.9
+    },
+    {
+      "fold": 1,
+      "variant": "No-edge ablation",
+      "seed": 0,
+      "epochs": 38,
+      "val_qwk": 0.8069522863701287,
+      "test_qwk": 0.7678372912225807,
+      "sec": 58.5
+    },
+    {
+      "fold": 1,
+      "variant": "No-edge ablation",
+      "seed": 1,
+      "epochs": 45,
+      "val_qwk": 0.8246543755021489,
+      "test_qwk": 0.7675332225390066,
+      "sec": 64.0
+    },
+    {
+      "fold": 1,
+      "variant": "No-edge ablation",
+      "seed": 2,
+      "epochs": 58,
+      "val_qwk": 0.8086013348408039,
+      "test_qwk": 0.7645795505638431,
+      "sec": 82.0
+    },
+    {
+      "fold": 2,
+      "variant": "GNN",
+      "seed": 0,
+      "epochs": 45,
+      "val_qwk": 0.8244886302108311,
+      "test_qwk": 0.7907820096243152,
+      "sec": 110.6
+    },
+    {
+      "fold": 2,
+      "variant": "GNN",
+      "seed": 1,
+      "epochs": 42,
+      "val_qwk": 0.8199413512295903,
+      "test_qwk": 0.7875191009090385,
+      "sec": 94.5
+    },
+    {
+      "fold": 2,
+      "variant": "GNN",
+      "seed": 2,
+      "epochs": 41,
+      "val_qwk": 0.8189785386451388,
+      "test_qwk": 0.7934090948749501,
+      "sec": 92.4
+    },
+    {
+      "fold": 2,
+      "variant": "No-edge ablation",
+      "seed": 0,
+      "epochs": 45,
+      "val_qwk": 0.8135071085809129,
+      "test_qwk": 0.7768741108047477,
+      "sec": 69.4
+    },
+    {
+      "fold": 2,
+      "variant": "No-edge ablation",
+      "seed": 1,
+      "epochs": 49,
+      "val_qwk": 0.8038348373584367,
+      "test_qwk": 0.7676508573396739,
+      "sec": 75.6
+    },
+    {
+      "fold": 2,
+      "variant": "No-edge ablation",
+      "seed": 2,
+      "epochs": 30,
+      "val_qwk": 0.7952352066582217,
+      "test_qwk": 0.7679766828244029,
+      "sec": 44.2
+    },
+    {
+      "fold": 3,
+      "variant": "GNN",
+      "seed": 0,
+      "epochs": 38,
+      "val_qwk": 0.7952232331706119,
+      "test_qwk": 0.7915509499625546,
+      "sec": 95.5
+    },
+    {
+      "fold": 3,
+      "variant": "GNN",
+      "seed": 1,
+      "epochs": 30,
+      "val_qwk": 0.7894408765386667,
+      "test_qwk": 0.7883779093131386,
+      "sec": 68.2
+    },
+    {
+      "fold": 3,
+      "variant": "GNN",
+      "seed": 2,
+      "epochs": 54,
+      "val_qwk": 0.8088790293947696,
+      "test_qwk": 0.8071719083148351,
+      "sec": 118.1
+    },
+    {
+      "fold": 3,
+      "variant": "No-edge ablation",
+      "seed": 0,
+      "epochs": 60,
+      "val_qwk": 0.7876920975997758,
+      "test_qwk": 0.7845742233190447,
+      "sec": 89.8
+    },
+    {
+      "fold": 3,
+      "variant": "No-edge ablation",
+      "seed": 1,
+      "epochs": 60,
+      "val_qwk": 0.7804907025861716,
+      "test_qwk": 0.7843131655228188,
+      "sec": 94.1
+    },
+    {
+      "fold": 3,
+      "variant": "No-edge ablation",
+      "seed": 2,
+      "epochs": 60,
+      "val_qwk": 0.7763789241756462,
+      "test_qwk": 0.7910107428603022,
+      "sec": 96.5
+    },
+    {
+      "fold": 4,
+      "variant": "GNN",
+      "seed": 0,
+      "epochs": 39,
+      "val_qwk": 0.7949277174751992,
+      "test_qwk": 0.8131312535100277,
+      "sec": 72.9
+    },
+    {
+      "fold": 4,
+      "variant": "GNN",
+      "seed": 1,
+      "epochs": 40,
+      "val_qwk": 0.7914218810131958,
+      "test_qwk": 0.8237424762303375,
+      "sec": 78.6
+    },
+    {
+      "fold": 4,
+      "variant": "GNN",
+      "seed": 2,
+      "epochs": 60,
+      "val_qwk": 0.8056551639120519,
+      "test_qwk": 0.8071409212837197,
+      "sec": 131.0
+    },
+    {
+      "fold": 4,
+      "variant": "No-edge ablation",
+      "seed": 0,
+      "epochs": 60,
+      "val_qwk": 0.8015518142641521,
+      "test_qwk": 0.7982300608054923,
+      "sec": 90.5
+    },
+    {
+      "fold": 4,
+      "variant": "No-edge ablation",
+      "seed": 1,
+      "epochs": 40,
+      "val_qwk": 0.7943581519178462,
+      "test_qwk": 0.7989416479347029,
+      "sec": 67.7
+    },
+    {
+      "fold": 4,
+      "variant": "No-edge ablation",
+      "seed": 2,
+      "epochs": 53,
+      "val_qwk": 0.799780449917802,
+      "test_qwk": 0.7926050762622645,
+      "sec": 77.0
+    }
+  ],
+  "fold_qwk": {
+    "GNN": [
+      0.7848758553323464,
+      0.7834941694013785,
+      0.7905700684694347,
+      0.7957002558635095,
+      0.8146715503413615
+    ],
+    "No-edge ablation": [
+      0.759162134215579,
+      0.76665002144181,
+      0.7708338836562748,
+      0.7866327105673886,
+      0.7965922616674866
+    ],
+    "Random forest": [
+      0.7711064996502134,
+      0.7816828668340049,
+      0.7856155748462041,
+      0.7971388532463556,
+      0.7954604910549387
+    ]
+  },
+  "Random forest": {
+    "acc": 0.7047494820839407,
+    "bal_acc": 0.5553866613226892,
+    "macro_f1": 0.562876334520661,
+    "qwk": 0.7863702590904371,
+    "mae": 0.4253817233177319,
+    "success_auc": 0.929776210656958,
+    "recall_by_class": [
+      0.836,
+      0.211,
+      0.544,
+      0.331,
+      0.856
+    ]
+  },
+  "GNN": {
+    "acc": 0.7185350008951636,
+    "bal_acc": 0.5304592390169883,
+    "macro_f1": 0.5407934766852395,
+    "qwk": 0.7939805584286351,
+    "mae": 0.40635310365994015,
+    "success_auc": 0.9331903529800556,
+    "acc_sd_seeds": 0.0009827681555457067,
+    "macro_f1_sd_seeds": 0.004012084033178227,
+    "qwk_sd_seeds": 0.0019491889493194197,
+    "recall_by_class": [
+      0.812,
+      0.119,
+      0.522,
+      0.294,
+      0.906
+    ],
+    "seed_ensemble": {
+      "acc": 0.7291874472492903,
+      "bal_acc": 0.5383293912614144,
+      "macro_f1": 0.5509454679287821,
+      "qwk": 0.8022292455701994,
+      "mae": 0.39085398603544846,
+      "success_auc": 0.9406580401762523,
+      "recall_by_class": [
+        0.826,
+        0.12,
+        0.533,
+        0.293,
+        0.92
+      ]
+    }
+  },
+  "No-edge ablation": {
+    "acc": 0.7100693112355815,
+    "bal_acc": 0.5167362638206622,
+    "macro_f1": 0.5259337322564525,
+    "qwk": 0.776224654997307,
+    "mae": 0.4298447530627382,
+    "success_auc": 0.9281005719853589,
+    "acc_sd_seeds": 0.0009832672337778648,
+    "macro_f1_sd_seeds": 0.0007403468500399401,
+    "qwk_sd_seeds": 0.0004346650445576171,
+    "recall_by_class": [
+      0.818,
+      0.106,
+      0.515,
+      0.236,
+      0.909
+    ],
+    "seed_ensemble": {
+      "acc": 0.7157216297091997,
+      "bal_acc": 0.5208038760277237,
+      "macro_f1": 0.5313320056533039,
+      "qwk": 0.7839164042291639,
+      "mae": 0.4186296324714187,
+      "success_auc": 0.9326589563047353,
+      "recall_by_class": [
+        0.827,
+        0.108,
+        0.522,
+        0.23,
+        0.917
+      ]
+    }
+  },
+  "paired_qwk_diff": {
+    "GNN - No-edge": {
+      "mean": 0.01788817757189829,
+      "per_fold": [
+        0.0257,
+        0.0168,
+        0.0197,
+        0.0091,
+        0.0181
+      ],
+      "folds_positive": 5
+    },
+    "GNN - RF": {
+      "mean": 0.007661522755262773,
+      "per_fold": [
+        0.0138,
+        0.0018,
+        0.005,
+        -0.0014,
+        0.0192
+      ],
+      "folds_positive": 4
+    }
+  },
+  "per_task_qwk": {
+    "Clearing": {
+      "n": 936.0,
+      "GNN": 0.61,
+      "No-edge ablation": 0.565,
+      "Random forest": 0.559
+    },
+    "DoubleTakeout": {
+      "n": 2086.0,
+      "GNN": 0.791,
+      "No-edge ablation": 0.771,
+      "Random forest": 0.803
+    },
+    "Draw": {
+      "n": 13488.0,
+      "GNN": 0.845,
+      "No-edge ablation": 0.833,
+      "Random forest": 0.836
+    },
+    "Freeze": {
+      "n": 113.0,
+      "GNN": 0.628,
+      "No-edge ablation": 0.471,
+      "Random forest": 0.456
+    },
+    "Front": {
+      "n": 160.0,
+      "GNN": 0.296,
+      "No-edge ablation": 0.357,
+      "Random forest": 0.436
+    },
+    "Guard": {
+      "n": 2052.0,
+      "GNN": 0.256,
+      "No-edge ablation": 0.178,
+      "Random forest": 0.229
+    },
+    "HitRoll": {
+      "n": 1025.0,
+      "GNN": 0.716,
+      "No-edge ablation": 0.669,
+      "Random forest": 0.68
+    },
+    "PromotionTakeout": {
+      "n": 1044.0,
+      "GNN": 0.786,
+      "No-edge ablation": 0.765,
+      "Random forest": 0.747
+    },
+    "Raise": {
+      "n": 2716.0,
+      "GNN": 0.759,
+      "No-edge ablation": 0.743,
+      "Random forest": 0.734
+    },
+    "Takeout": {
+      "n": 1992.0,
+      "GNN": 0.79,
+      "No-edge ablation": 0.763,
+      "Random forest": 0.802
+    },
+    "Wick": {
+      "n": 453.0,
+      "GNN": 0.754,
+      "No-edge ablation": 0.716,
+      "Random forest": 0.631
+    }
+  }
+}

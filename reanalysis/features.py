@@ -20,6 +20,11 @@ HOUSE_R = 578.0   # 1.829 m house radius at ~316 units/m (sheet width 4.75 m = 1
 STONE_R = 46.0    # ~0.145 m stone radius
 MOVE_EPS = 15.0   # displacement below this is treated as image-extraction noise
 VALID_POINTS = [0, 1, 2, 3, 4]
+# Pre-placed positions by end-level PowerPlay value (0 none, 1 right, 2 left): (guard, house).
+# Modal first-shot positions in the data; e.g. 1945/2039 non-power-play ends have a stone at (750, 1916).
+PREPLACED = {0: ((750, 1916), (750, 650)),
+             1: ((1089, 1916), (1150, 850)),
+             2: ((411, 1916), (350, 850))}
 
 TASKS = {0: "Draw", 1: "Front", 2: "Guard", 3: "Raise", 4: "Wick", 5: "Freeze",
          6: "Takeout", 7: "HitRoll", 8: "Clearing", 9: "DoubleTakeout",
@@ -150,7 +155,7 @@ def fixed_features(stones, ends, games):
         own = np.arange(12) < 6 if team == low_team else np.arange(12) >= 6
         if first_in_end[i]:
             pre_st = _preplaced(st)
-            pre_xy = np.where(pre_st[:, None] == 1, xy, 0.0)
+            pre_xy = preplaced_start(xy, st, int(pp.get(tuple(s.loc[i, KEY_END]), 0)))
         else:
             pre_xy, pre_st = prev_xy, prev_st
 
@@ -203,6 +208,26 @@ def fixed_features(stones, ends, games):
     F["task"] = F["task"].map(TASKS).fillna("Other")
     F = pd.get_dummies(F, columns=["task", "powerplay"], dtype=float)
     return F.astype(float), y, keep
+
+
+def preplaced_start(xy_after, st_after, pp):
+    """Positions of stones 1 and 7 before the first thrown shot of an end.
+
+    The after-shot layout can't be used: the first shot may move or remove a pre-placed stone.
+    Assigns stones 1/7 to the guard and house spots by minimising distance from the canonical
+    spots to where each stone is after the first shot (removed stones cost nothing).
+    """
+    guard, house = (np.array(p, float) for p in PREPLACED.get(pp, PREPLACED[0]))
+
+    def cost(i, spot):
+        return 0.0 if st_after[i] != 1 else np.linalg.norm(xy_after[i] - spot)
+
+    pre = np.zeros((12, 2))
+    if cost(0, guard) + cost(6, house) <= cost(0, house) + cost(6, guard):
+        pre[0], pre[6] = guard, house
+    else:
+        pre[0], pre[6] = house, guard
+    return pre
 
 
 def _preplaced(status_after_first):

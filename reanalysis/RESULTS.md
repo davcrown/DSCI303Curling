@@ -22,23 +22,26 @@ With an honest split, the paper's features do no better than always guessing 4 o
 Fixes: positions are differenced within each end only (the first shot is compared to the pre-placed layout);
 0 = unthrown and 4095 = removed are handled explicitly instead of being treated as coordinates or median-filled;
 the thrown stone is identified; power play is assigned at end level; hammer, score and house-state context are added.
+The first shot of an end is compared to the canonical pre-placed spots for that power-play setting (`preplaced_start`),
+so a pre-placed stone hit on shot 1 registers as moved. That fix changed 974 rows but left the RF at QWK 0.786;
+pre-fix numbers are in `results_before_fix.json`.
 
 | Model | Acc | Bal. acc | Macro-F1 | QWK | MAE | AUC (3–4 vs 0–2) |
 |---|---|---|---|---|---|---|
 | Majority class | 0.562 | 0.200 | 0.144 | 0.000 | 0.959 | 0.500 |
-| Logistic regression | 0.551 | 0.507 | 0.462 | 0.637 | 0.695 | 0.877 |
-| **Random forest** | **0.705** | 0.555 | **0.563** | **0.786** | **0.425** | **0.930** |
-| Gradient boosting | 0.650 | **0.583** | 0.555 | 0.761 | 0.487 | 0.926 |
-| MLP | 0.697 | 0.498 | 0.507 | 0.762 | 0.455 | 0.922 |
-| RF + train-only oversampling | 0.677 | 0.556 | 0.552 | 0.776 | 0.454 | 0.927 |
+| Logistic regression | 0.553 | 0.508 | 0.464 | 0.645 | 0.686 | 0.878 |
+| **Random forest** | **0.704** | 0.553 | **0.561** | **0.786** | **0.426** | **0.930** |
+| Gradient boosting | 0.650 | **0.584** | 0.556 | 0.766 | 0.482 | 0.927 |
+| MLP | 0.696 | 0.498 | 0.507 | 0.764 | 0.453 | 0.921 |
+| RF + train-only oversampling | 0.677 | 0.556 | 0.553 | 0.779 | 0.451 | 0.928 |
 
 Fold SD is ≤ 0.013 on all metrics. Oversampling did not help.
 
-Random forest recall by class: 0 → 0.84, 1 → 0.21, 2 → 0.54, 3 → 0.33, 4 → 0.86.
+Random forest recall by class: 0 → 0.83, 1 → 0.21, 2 → 0.55, 3 → 0.33, 4 → 0.86.
 The middle grades (1 and 3) are the hard part.
 
-Held-out permutation importance (macro-F1): shot number in end, change in scoring state,
-thrown stone's distance to the button, opponent stones removed, then task indicators.
+Held-out permutation importance (macro-F1): shot number in end, thrown stone's distance to the button,
+change in scoring state, opponent stones removed, then task indicators.
 
 Per task: takeouts and double takeouts are predicted well (QWK ≈ 0.80). Guards and clearings
-barely beat their majority grade (QWK 0.23 / 0.56): their success depends on intent the layout doesn't show.
+barely beat their majority grade (QWK 0.23 / 0.55): their success depends on intent the layout doesn't show.

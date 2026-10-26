@@ -2,3 +2,6 @@ data/
 __pycache__/
 *.pkl
 reanalysis/run.log
+gnn/graphs.npz
+gnn/results_quick.json
+*.log
